@@ -1,6 +1,6 @@
 baseURL: http://example.org/
 languageCode: en-us
-title: Forty
+title: Asli
 theme: forty
 googleAnalytics: ''
 disqusShortname: ''
@@ -14,9 +14,9 @@ params:
   blog: {}
   contact:
     address:
-      - city: City, ST 00000
-        country: Country
-        street: Street
+      - city: London, ST 00000
+        country: UK
+        street: Regent's Park
         title: Address
     buttonClear: Clear
     buttonSend: Send message
