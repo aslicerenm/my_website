@@ -8,13 +8,13 @@ params:
   banner:
     buttonText: Get Started
     subtitle: |-
-      A RESPONSIVE SITE TEMPLATE DESIGNED BY HTML5 UP
-      AND RELEASED UNDER THE CREATIVE COMMONS.
+      Master's in Analytics and Management
+      London Business School
     title: Hi, my name is Asli
   blog: {}
   contact:
     address:
-      - city: London, ST 00000
+      - city: London, NW1 4SA
         country: UK
         street: Regent's Park
         title: Address
@@ -24,9 +24,9 @@ params:
       - email: amemis.mam2022@london.edu
         title: Email
     enable: yes
-    phone:
-      - phone: (000) 000-0000 x1234
-        title: Phone
+#    phone:
+#      - phone: (000) 000-0000 x1234
+#        title: Phone
   custom_css: []
   custom_js: []
   description: Your description
@@ -35,30 +35,30 @@ params:
     text: Please visit [this page](/)
   favicon: favicon.ico
   footer:
-    copyright: Company Name
+    copyright: London Business School
     enable: yes
     quicklinks:
       - alt: HTML5 UP
         text: 'Design: '
         url: https://www.html5up.net
     social:
-      - icon: fa-twitter
-        label: Twitter
-        url: https://www.twitter.com
-      - icon: fa-facebook
-        label: Facebook
-        url: https://www.facebook.com
+#      - icon: fa-twitter
+#        label: Twitter
+#        url: https://www.twitter.com
+#      - icon: fa-facebook
+#        label: Facebook
+#        url: https://www.facebook.com
       - icon: fa-instagram
         label: Instagram
-        url: https://www.instagram.com
+        url: https://www.instagram.com/aslicerenm/
       - icon: fa-github
         label: GitHub
-        url: https://www.github.com
+        url: https://www.github.com/aslicerenm
       - icon: fa-linkedin
         label: LinkedIn
-        url: https://www.linkedin.com
+        url: https://www.linkedin.com/in/asli-ceren-memis/
   image: ''
-  name: Your name
+  name: Asli Ceren Memis
   navigation:
     button1:
       - name: Get Started
@@ -83,7 +83,7 @@ params:
     showcase:
       - image: pic01.jpg
         subtitle: Ipsum Dolor Sit Amet
-        title: Aliquam
+        title: About me
         url: blogs/aliquam
       - image: pic02.jpg
         subtitle: Feugiat Amet Tempus
