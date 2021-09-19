@@ -6,10 +6,10 @@ googleAnalytics: ''
 disqusShortname: ''
 params:
   banner:
-    buttonText: Get Started
+#    buttonText: Get Started
     subtitle: |-
       Master's in Analytics and Management
-      London Business School
+      \n London Business School
     title: Hi, my name is Asli
   blog: {}
   contact:
@@ -18,8 +18,8 @@ params:
         country: UK
         street: Regent's Park
         title: Address
-    buttonClear: Clear
-    buttonSend: Send message
+#    buttonClear: Clear
+#    buttonSend: Send message
     email:
       - email: amemis.mam2022@london.edu
         title: Email
@@ -59,60 +59,60 @@ params:
         url: https://www.linkedin.com/in/asli-ceren-memis/
   image: ''
   name: Asli Ceren Memis
-  navigation:
-    button1:
-      - name: Get Started
-        url: blogs
-    button2:
-      - name: Log In
-        url: '#'
-    links:
-      - name: Home
-        url: '#'
-      - name: Blogs
-        url: blogs
-      - name: Generic Blog
-        url: blogs/ipsum
-      - name: Elements
-        url: elements.html
-    menu: Menu
+#  navigation:
+#    button1:
+#      - name: Get Started
+#        url: blogs
+#    button2:
+#      - name: Log In
+#        url: '#'
+#    links:
+#      - name: Home
+#        url: '#'
+#      - name: Blogs
+#        url: blogs
+#      - name: Generic Blog
+#        url: blogs/ipsum
+#      - name: Elements
+#        url: elements.html
+#    menu: Menu
     subtitle: By HTML5 Up
     title: Forty
   tiles:
     enable: yes
     showcase:
       - image: pic01.jpg
-        subtitle: Ipsum Dolor Sit Amet
+        subtitle: Asli Ceren Memis
         title: About me
         url: blogs/aliquam
       - image: pic02.jpg
-        subtitle: Feugiat Amet Tempus
-        title: Tempus
+        subtitle: German elections
+        title: Example R project
         url: blogs/tempus
       - image: pic03.jpg
         subtitle: Lorem Etiam Nullam
-        title: Magna
+        title: Education
         url: blogs/magna
       - image: pic04.jpg
-        subtitle: Nisl Sed Aliquam
-        title: Ipsum
+#        subtitle: Nisl Sed Aliquam
+        title: Professional experience
         url: blogs/ipsum
       - image: pic05.jpg
-        subtitle: Ipsum Dolor Sit Amet
-        title: Consequat
-        url: blogs/ipsum
-      - image: pic06.jpg
-        subtitle: Feugiat Amet Tempus
-        title: Etiam
-        url: blogs/ipsum
-  two:
-    buttonText: Get Started
-    enable: yes
-    subtitle: "cemre bir eşek. abidin memiş fahrettin koca.
-      \n    Mauris aliquet magna magna sed nunc rhoncus pharetra. \n    Pellentesque
-      condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia
-      pellentesque lorem ipsum dolor. \n    Nullam et orci eu lorem consequat tincidunt.
-      Vivamus et sagittis libero.\n    Mauris aliquet magna magna sed nunc rhoncus
-      amet pharetra et feugiat tempus."
-    title: Massa libero
-    url: blogs
+#        subtitle: Ipsum Dolor Sit Amet
+#        title: Consequat
+#        url: blogs/ipsum
+#      - image: pic06.jpg
+#        subtitle: Feugiat Amet Tempus
+#        title: Etiam
+#        url: blogs/ipsum
+#  two:
+#    buttonText: Get Started
+#    enable: yes
+#    subtitle: "cemre bir eşek. abidin memiş fahrettin koca.
+#      \n    Mauris aliquet magna magna sed nunc rhoncus pharetra. \n    Pellentesque
+#      condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia
+#      pellentesque lorem ipsum dolor. \n    Nullam et orci eu lorem consequat tincidunt.
+#      Vivamus et sagittis libero.\n    Mauris aliquet magna magna sed nunc rhoncus
+#      amet pharetra et feugiat tempus."
+#    title: Massa libero
+#    url: blogs
