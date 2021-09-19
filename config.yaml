@@ -6,7 +6,7 @@ googleAnalytics: ''
 disqusShortname: ''
 params:
   banner:
-#    buttonText: Get Started
+    buttonText: Get Started
     subtitle: |-
       Master's in Analytics and Management
       \n London Business School
@@ -59,23 +59,23 @@ params:
         url: https://www.linkedin.com/in/asli-ceren-memis/
   image: ''
   name: Asli Ceren Memis
-#  navigation:
-#    button1:
-#      - name: Get Started
-#        url: blogs
-#    button2:
-#      - name: Log In
-#        url: '#'
-#    links:
-#      - name: Home
-#        url: '#'
-#      - name: Blogs
-#        url: blogs
-#      - name: Generic Blog
-#        url: blogs/ipsum
-#      - name: Elements
-#        url: elements.html
-#    menu: Menu
+  navigation:
+    button1:
+      - name: Get Started
+        url: blogs
+    button2:
+      - name: Log In
+        url: '#'
+    links:
+      - name: Home
+        url: '#'
+      - name: Blogs
+        url: blogs
+      - name: Generic Blog
+        url: blogs/ipsum
+      - name: Elements
+        url: elements.html
+    menu: Menu
     subtitle: By HTML5 Up
     title: Forty
   tiles:
