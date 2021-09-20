@@ -6,11 +6,10 @@ googleAnalytics: ''
 disqusShortname: ''
 params:
   banner:
-    buttonText: Get Started
+    buttonText: Learn more
     subtitle: |-
-      Master's in Analytics and Management
-      \n London Business School
-    title: Hi, my name is Asli
+      Master's in Analytics and Management - London Business School
+    title: Hi, my name is Asli!
   blog: {}
   contact:
     address:
@@ -23,7 +22,7 @@ params:
     email:
       - email: amemis.mam2022@london.edu
         title: Email
-    enable: yes
+#    enable: yes
 #    phone:
 #      - phone: (000) 000-0000 x1234
 #        title: Phone
@@ -61,20 +60,20 @@ params:
   name: Asli Ceren Memis
   navigation:
     button1:
-      - name: Get Started
-        url: blogs
-    button2:
-      - name: Log In
-        url: '#'
+      - name: Learn more
+        url: content
+#    button2:
+#      - name: Log In
+#        url: '#'
     links:
       - name: Home
         url: '#'
-      - name: Blogs
-        url: blogs
-      - name: Generic Blog
-        url: blogs/ipsum
-      - name: Elements
-        url: elements.html
+      - name: Content
+        url: content
+#      - name: Generic Blog
+#        url: blogs/ipsum
+#      - name: Elements
+#        url: elements.html
     menu: Menu
     subtitle: By HTML5 Up
     title: Forty
@@ -84,20 +83,20 @@ params:
       - image: pic01.jpg
         subtitle: Asli Ceren Memis
         title: About me
-        url: blogs/aliquam
+        url: blogs/about-me
       - image: pic02.jpg
         subtitle: German elections
         title: Example R project
-        url: blogs/tempus
+        url: blogs/example-project
       - image: pic03.jpg
-        subtitle: Lorem Etiam Nullam
+#        subtitle: Lorem Etiam Nullam
         title: Education
-        url: blogs/magna
+        url: blogs/education
       - image: pic04.jpg
 #        subtitle: Nisl Sed Aliquam
         title: Professional experience
-        url: blogs/ipsum
-      - image: pic05.jpg
+        url: blogs/professional-experience
+#      - image: pic05.jpg
 #        subtitle: Ipsum Dolor Sit Amet
 #        title: Consequat
 #        url: blogs/ipsum

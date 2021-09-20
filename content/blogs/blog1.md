@@ -7,8 +7,11 @@ description: ""
 draft: false
 image: pic10.jpg
 keywords: ""
-slug: ipsum
-title: Ipsum
+slug: professional-experience
+title: Professional experience
 ---
 
-Nullam et orci eu lorem consequat tincidunt vivamus et sagittis magna sed nunc rhoncus condimentum sem. In efficitur ligula tate urna. Maecenas massa sed magna lacinia magna pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis tempus.
+* *2020-2021* **Ciceksepeti/Lolaflora** Jr. Digital Marketing Specialist
+* *2019-2020* **L'Oréal** Marketing Intern
+* *2019* **Procter & Gamble** Market Strategy and Planning Intern
+* *2018-2019* **Nielsen** Business Analyst Intern
