@@ -959,3 +959,5 @@ components_table2 %>% ggplot(aes(year, amount, group = indicator_name, color = i
 
 ```
 
+
+
