@@ -22,10 +22,10 @@ params:
     email:
       - email: amemis.mam2022@london.edu
         title: Email
-#    enable: yes
-#    phone:
-#      - phone: (000) 000-0000 x1234
-#        title: Phone
+    enable: yes
+    phone:
+      - phone: (+44) 020-7000 7000
+        title: Phone
   custom_css: []
   custom_js: []
   description: Your description
