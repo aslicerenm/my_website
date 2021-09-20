@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Portfolio on Asli Ceren Memis</title>
+    <link>https://asli-memis-portfolio.netlify.app/blogs/</link>
+    <description>Recent content in Portfolio on Asli Ceren Memis</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Oct 2017 22:27:21 -0500</lastBuildDate><atom:link href="https://asli-memis-portfolio.netlify.app/blogs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About me</title>
+      <link>https://asli-memis-portfolio.netlify.app/blogs/about-me/</link>
+      <pubDate>Tue, 31 Oct 2017 22:42:51 -0500</pubDate>
+      
+      <guid>https://asli-memis-portfolio.netlify.app/blogs/about-me/</guid>
+      <description>Hi, I&amp;rsquo;m Asli. I was born in Istanbul, Turkey in 1996. I studied Economics at Bogazici University and held a leadership position at a student club. During my Undergraduate education, I also did part- and full-time internships at various multinational companies such as L&amp;rsquo;Oréal and Procter &amp;amp; Gamble. I graduated in 2020 and started working as a Jr. Digital Growth Specialist in one of the largest e-commerce companies in Turkey. In August 2021, I started studying at LBS and am currently a part of the MAM2022 cohort.</description>
+    </item>
+    
+    <item>
+      <title>Education</title>
+      <link>https://asli-memis-portfolio.netlify.app/blogs/education/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:13 -0500</pubDate>
+      
+      <guid>https://asli-memis-portfolio.netlify.app/blogs/education/</guid>
+      <description> 2021-2022 London Business School Masters in Analytics and Management 2015-2020 Bogazici University Economics 2019 WU Wien Erasmus term  </description>
+    </item>
+    
+    <item>
+      <title>Example R project</title>
+      <link>https://asli-memis-portfolio.netlify.app/blogs/example-project/</link>
+      <pubDate>Tue, 31 Oct 2017 22:26:09 -0500</pubDate>
+      
+      <guid>https://asli-memis-portfolio.netlify.app/blogs/example-project/</guid>
+      <description>Youth Risk Behavior Surveillance Every two years, the Centers for Disease Control and Prevention conduct the Youth Risk Behavior Surveillance System (YRBSS) survey, where it takes data from high schoolers (9th through 12th grade), to analyze health patterns. Here we will work with a selected group of variables from a random sample of observations during one of the years the YRBSS was conducted.
+Load the data This data is part of the openintro textbook and we can load and inspect it.</description>
+    </item>
+    
+    <item>
+      <title>Professional experience</title>
+      <link>https://asli-memis-portfolio.netlify.app/blogs/professional-experience/</link>
+      <pubDate>Tue, 31 Oct 2017 21:28:43 -0500</pubDate>
+      
+      <guid>https://asli-memis-portfolio.netlify.app/blogs/professional-experience/</guid>
+      <description> 2020-2021 Ciceksepeti/Lolaflora Jr. Digital Marketing Specialist 2019-2020 L&amp;rsquo;Oréal Marketing Intern 2019 Procter &amp;amp; Gamble Market Strategy and Planning Intern 2018-2019 Nielsen Business Analyst Intern  </description>
+    </item>
+    
+  </channel>
+</rss>
