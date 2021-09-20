@@ -276,7 +276,7 @@ glimpse(yrbss)</code></pre>
     title = &quot;Density plot of weight in kg&quot;,
     x = &quot;Weight&quot;,
     y = &quot;Density&quot;)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/eda_on_weight-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/eda_on_weight-1.png" width="576" style="display: block; margin: auto;" /></p>
 <p>Next, we consider the possible relationship between a high schooler’s weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.</p>
 <pre class="r"><code>yrbss %&gt;% filter(!is.na(weight), !is.na(physically_active_7d)) %&gt;% 
   
@@ -288,7 +288,7 @@ ggplot(aes(x=physically_active_7d, y=weight)) +
     title = &quot;Boxplot of weight depending on physical active 7 days&quot;,
     x = &quot;Physical active 7 days&quot;,
     y = &quot;Weight&quot;)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/weight%20and%20physical%20activity%20-1.png" width="480" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/weight%20and%20physical%20activity%20-1.png" width="480" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>yrbss %&gt;% filter(!is.na(weight), !is.na(physically_active_7d)) %&gt;% 
   
 ggplot(aes(x=weight, group=physically_active_7d, color= physically_active_7d)) + 
@@ -298,7 +298,7 @@ ggplot(aes(x=weight, group=physically_active_7d, color= physically_active_7d)) +
     title = &quot;Density plot of weight depending on physical active 7 days&quot;,
     x = &quot;Weight&quot;,
     y = &quot;Density&quot;)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/weight%20and%20physical%20activity_2%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/weight%20and%20physical%20activity_2%20-1.png" width="768" style="display: block; margin: auto;" /></p>
 <p>Let’s create a new variable in the dataframe <code>yrbss</code>, called <code>physical_3plus</code> , which will be <code>yes</code> if they are physically active for at least 3 days a week, and <code>no</code> otherwise. We also want to calculate the number and % of those who are and are not active for more than 3 days.</p>
 <pre class="r"><code>yrbss  &lt;- yrbss %&gt;% mutate(physical_3plus=case_when(physically_active_7d&gt;2 ~ &quot;yes&quot;, 
                                           physically_active_7d&lt;3 ~&quot;no&quot; )) 
@@ -337,7 +337,7 @@ lower</code></pre>
     title = &quot;Boxplot of weight depending on physical active 3+ days&quot;,
     x = &quot;Physical active 3+ days&quot;,
     y = &quot;Weight&quot;)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/boxplot-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/boxplot-1.png" width="576" style="display: block; margin: auto;" /></p>
 </div>
 <div id="confidence-interval" class="section level2">
 <h2>Confidence Interval</h2>
@@ -406,12 +406,12 @@ H1: difference != 0</p>
 <pre class="r"><code>ggplot(data = null_dist, aes(x = stat)) +
   geom_histogram() + 
   theme_minimal()</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/unnamed-chunk-2-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/unnamed-chunk-2-1.png" width="648" style="display: block; margin: auto;" /></p>
 <p>Now that the test is initialized and the null distribution formed, we can visualise to see how many of these null permutations have a difference of at least <code>obs_stat</code> of 1.77.</p>
 <p>We can also calculate the p-value for your hypothesis test using the function <code>infer::get_p_value()</code>.</p>
 <pre class="r"><code>null_dist %&gt;% visualize() +
   shade_p_value(obs_stat = obs_diff, direction = &quot;two-sided&quot;)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/unnamed-chunk-3-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/unnamed-chunk-3-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>null_dist %&gt;%
   get_p_value(obs_stat = obs_diff, direction = &quot;two_sided&quot;)</code></pre>
 <pre><code>## # A tibble: 1 × 1
@@ -497,7 +497,7 @@ ggplot(data=ratings_per_director_formula_ci, aes(x=mean_rating, y=reorder(direct
     x = &quot;Mean IMBD rating&quot;,
     y = &quot;Director&quot;, 
     cex=0.1)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/movie%20comparison-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/movie%20comparison-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Now we conduct the mentioned t-tests:</p>
 <pre class="r"><code>movies_subset &lt;- movies %&gt;%   
   filter(director %in% (c(&quot;Steven Spielberg&quot;, &quot;Tim Burton&quot;)))
@@ -536,7 +536,7 @@ null_dist &lt;- movies_subset %&gt;%
 
 null_dist %&gt;% visualize() +
   shade_p_value(obs_stat = obs_diff_ratings, direction = &quot;two-sided&quot;)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/t_test_using_R_movies-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/t_test_using_R_movies-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>null_dist %&gt;%
   get_p_value(obs_stat = obs_diff_ratings, direction = &quot;two_sided&quot;)</code></pre>
 <pre><code>## # A tibble: 1 × 1
@@ -652,7 +652,7 @@ salary_in_null_world &lt;- omega %&gt;%
   visualize(salary_in_null_world, bins=15) +
     shade_p_value(obs_stat=obs_diff_mean, direction=&quot;both&quot;) +
     theme_minimal()</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/hypothesis_testing-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/hypothesis_testing-1.png" width="576" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>  #Get p-value
   salary_in_null_world %&gt;%
     get_p_value(obs_stat=obs_diff_mean, direction=&quot;both&quot;)</code></pre>
@@ -748,7 +748,7 @@ experience_in_null_world &lt;- omega %&gt;%
   visualize(experience_in_null_world, bins=15) +
     shade_p_value(obs_stat=obs_diff_mean, direction=&quot;both&quot;) +
     theme_minimal()</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/experience%20and%20gender-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/experience%20and%20gender-1.png" width="648" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>  #Get p-value
   experience_in_null_world %&gt;%
     get_p_value(obs_stat=obs_diff_mean, direction=&quot;both&quot;)</code></pre>
@@ -772,7 +772,7 @@ experience_in_null_world &lt;- omega %&gt;%
     x = &quot;Salary&quot;,
     y = &quot;Years of experience&quot;, 
     cex=0.1)</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/salary_exp_scatter-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/salary_exp_scatter-1.png" width="576" style="display: block; margin: auto;" /></p>
 </div>
 <div id="check-correlations-between-the-data" class="section level2">
 <h2>Check correlations between the data</h2>
@@ -781,7 +781,7 @@ experience_in_null_world &lt;- omega %&gt;%
   select(gender, experience, salary) %&gt;% #order variables they will appear in ggpairs()
   ggpairs(aes(colour=gender, alpha = 0.3))+
   theme_bw()</code></pre>
-<p><img src="/blogs/blog3_files/figure-html/ggpairs-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="/blogs/blog2_files/figure-html/ggpairs-1.png" width="648" style="display: block; margin: auto;" /></p>
 <p><em>Conclusion:</em> There does appear to be a positive relationship between experience and salary, hence we can assume that the salary on average increases with more experience. Given that males have significantly more experience that females, it seems plausible that the difference in experience, rather than discrimination, is the reason between the average difference in salary between males and demales.</p>
 </div>
 </div>
