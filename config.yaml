@@ -17,11 +17,11 @@ params:
         country: UK
         street: Regent's Park
         title: Address
-#    buttonClear: Clear
-#    buttonSend: Send message
+    buttonClear: Clear
+    buttonSend: Send message
     email:
       - email: amemis.mam2022@london.edu
-        title: Email
+        title: E-mail
     enable: yes
     phone:
       - phone: (+44) 020-7000 7000
@@ -85,7 +85,7 @@ params:
         title: About me
         url: blogs/about-me
       - image: pic02.jpg
-        subtitle: German elections
+        subtitle: Youth Risk Behavior, IMDB Ratings, Omega Group Pay Discrimination
         title: Example R project
         url: blogs/example-project
       - image: pic03.jpg

@@ -10,3 +10,952 @@ keywords: ""
 slug: example-project
 title: Example R project
 ---
+
+
+```{r, setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(GGally)
+library(readxl)
+library(here)
+library(skimr)
+library(janitor)
+library(broom)
+library(tidyquant)
+library(infer)
+library(openintro)
+```
+
+
+# Youth Risk Behavior Surveillance
+
+Every two years, the Centers for Disease Control and Prevention conduct the [Youth Risk Behavior Surveillance System (YRBSS)](https://www.cdc.gov/healthyyouth/data/yrbs/index.htm) survey, where it takes data from high schoolers (9th through 12th grade), to analyze health patterns. Here we will work with a selected group of variables from a random sample of observations during one of the years the YRBSS was conducted.
+
+## Load the data
+
+This data is part of the `openintro` textbook and we can load and inspect it. There are observations on 13 different variables, some categorical and some numerical. The meaning of each variable can be found by bringing up the help file:
+
+```{r}
+data(yrbss)
+glimpse(yrbss)
+skim(yrbss)
+```
+
+## Exploratory Data Analysis
+
+We will first start with analyzing the `weight` of participants in kilograms. Using visualization and summary statistics, describe the distribution of weights. 
+
+*Analysis*: The distribution of weights appears to be skewed right and 1004 observations are missing.
+
+```{r, eda_on_weight, fig.height=3, fig.width=6}
+
+mosaic::favstats(~weight, data=yrbss)
+
+ggplot(data=yrbss, aes(weight)) + 
+  geom_density() + 
+  theme_minimal() + 
+  labs(
+    title = "Density plot of weight in kg",
+    x = "Weight",
+    y = "Density")
+
+```
+
+Next, we consider the possible relationship between a high schooler’s weight and their physical activity. Plotting the data is a useful first step because it helps us quickly visualize trends, identify strong associations, and develop research questions.
+
+```{r, weight and physical activity , fig.width=5, fig.height=6}
+
+yrbss %>% filter(!is.na(weight), !is.na(physically_active_7d)) %>% 
+  
+ggplot(aes(x=physically_active_7d, y=weight)) + 
+  geom_boxplot() + 
+  facet_wrap(~physically_active_7d, scales="free")+
+  theme_minimal()+
+   labs(
+    title = "Boxplot of weight depending on physical active 7 days",
+    x = "Physical active 7 days",
+    y = "Weight")
+
+```
+```{r, weight and physical activity_2 , fig.width=8, fig.height=6}
+
+yrbss %>% filter(!is.na(weight), !is.na(physically_active_7d)) %>% 
+  
+ggplot(aes(x=weight, group=physically_active_7d, color= physically_active_7d)) + 
+  geom_density() + 
+  theme_minimal()+
+   labs(
+    title = "Density plot of weight depending on physical active 7 days",
+    x = "Weight",
+    y = "Density")
+
+```
+
+
+Let’s create a new variable in the dataframe `yrbss`, called `physical_3plus` , which will be `yes` if they are physically active for at least 3 days a week, and `no` otherwise. We also want to calculate the number and % of those who are and are not active for more than 3 days. 
+
+  
+```{r, mutate_and_count}
+
+yrbss  <- yrbss %>% mutate(physical_3plus=case_when(physically_active_7d>2 ~ "yes", 
+                                          physically_active_7d<3 ~"no" )) 
+  
+
+yrbss %>% filter(!is.na(physical_3plus)) %>% 
+  group_by(physical_3plus) %>% 
+  summarise(count=n()) %>%  
+  mutate(percentage=count/sum(count)*100)
+
+```
+
+We construct a 95% confidence interval for the population proportion of high schools that are *NOT* active 3 or more days per week
+
+```{r, ci for population proportion}
+n_target <- yrbss %>% filter( physically_active_7d < 3) %>% 
+  count()
+n <- yrbss %>% count()
+p <- n_target / n
+se <- sqrt(p * (1 - p) / n)
+lower = p - 1.96 * se
+upper = p + 1.96 * se
+lower
+upper
+```
+
+We make a boxplot of `physical_3plus` vs. `weight`. 
+
+While one would believe that people who exercise more, weight less, this can not be clearly seen from the graphs. One potential reason might be that muscles actually weight more so that "fitter" people weight more than just skinny people.
+
+
+```{r, boxplot, fig.height=4, fig.width=6}
+
+yrbss %>% 
+  filter(!is.na(physical_3plus)) %>% 
+  ggplot(aes(x=physical_3plus, y=weight)) + 
+  geom_boxplot() + 
+  labs(
+    title = "Boxplot of weight depending on physical active 3+ days",
+    x = "Physical active 3+ days",
+    y = "Weight")
+
+```
+
+## Confidence Interval
+
+Boxplots show how the medians of the two distributions compare, but we can also compare the means of the distributions using either a confidence interval or a hypothesis test. Note that when we calculate the mean, SD, etc. weight in these groups using the mean function, we must ignore any missing values.
+
+
+```{r, ci_using_formulas}
+
+yrbss %>% 
+  filter(!is.na(physical_3plus)) %>%
+  mutate(physical_active_numeric = case_when(
+  physical_3plus  == "yes" ~ 1, 
+  physical_3plus  == "no" ~ 0 )) %>% 
+
+  summarise(mean=mean(physical_active_numeric), 
+            sd=sd(physical_active_numeric), 
+            count=n(), 
+            se = sqrt(mean*(1-mean)/count),  
+            t_critical=qt(0.975, count - 1 ), 
+            lower = mean-t_critical*se, 
+            upper = mean+t_critical*se)
+
+```
+
+There is an observed difference of about 1.77kg (68.44 - 66.67), and we notice that the two confidence intervals do not overlap. It seems that the difference is at least 95% statistically significant. Let us also conduct a hypothesis test.
+
+## Hypothesis test with formula
+
+Write the null and alternative hypotheses for testing whether mean weights are different for those who exercise at least times a week and those who don’t.
+
+difference = mean(weight of people who exercise 3+) + mean(weight of people who exercise less than 3)
+H0: difference = 0
+H1: difference != 0 
+
+```{r, t_test_using_R}
+
+t.test(weight ~ physical_3plus, data = yrbss)
+```
+
+## Hypothesis test with `infer`
+
+Next, we will introduce a new function, `hypothesize`, that falls into the infer workflow. We will use this method for conducting hypothesis tests.
+
+But first, we need to initialize the test, which we will save as `obs_diff`.
+
+```{r, calc_obs_difference}
+
+obs_diff <- yrbss %>%
+  specify(weight ~ physical_3plus) %>%
+  calculate(stat = "diff in means", order = c("yes", "no"))
+
+```
+
+After we have initialized the test, we need to simulate the test on the null distribution, which we will save as null.
+
+```{r, hypothesis_testing_using_infer_package}
+
+null_dist <- yrbss %>%
+  # specify variables
+  specify(weight ~ physical_3plus) %>%
+  
+  # assume independence, i.e, there is no difference
+  hypothesize(null = "independence") %>%
+  
+  # generate 1000 reps, of type "permute"
+  generate(reps = 1000, type = "permute") %>%
+  
+  # calculate statistic of difference, namely "diff in means"
+  calculate(stat = "diff in means", order = c("yes", "no"))
+
+```
+
+Here, `hypothesize` is used to set the null hypothesis as a test for independence, i.e., that there is no difference between the two population means. In one sample cases, the null argument can be set to *point* to test a hypothesis relative to a point estimate.
+
+Also, note that the `type` argument within generate is set to permute, which is the argument when generating a null distribution for a hypothesis test.
+
+We can visualize this null distribution with the following code:
+
+```{r, fig.height=4, fid.width=6}
+ggplot(data = null_dist, aes(x = stat)) +
+  geom_histogram() + 
+  theme_minimal()
+
+```
+
+
+Now that the test is initialized and the null distribution formed, we can visualise to see how many of these null permutations have a difference of at least `obs_stat` of `r obs_diff %>% pull() %>% round(2)`.
+
+We can also calculate the p-value for your hypothesis test using the function `infer::get_p_value()`.
+
+```{r, fig.height=4, fid.width=6}
+
+null_dist %>% visualize() +
+  shade_p_value(obs_stat = obs_diff, direction = "two-sided")
+
+null_dist %>%
+  get_p_value(obs_stat = obs_diff, direction = "two_sided")
+
+```
+
+# IMDB ratings: Differences between directors
+
+Recall the IMBD ratings data. We will explore whether the mean IMDB rating for Steven Spielberg and Tim Burton are the same or not. First we create a graph and then we run a hypothesis test with the `t.test` and `infer` package. The null hypothesis is that there is no difference in rating, while the alternative hypothesis is that there is a difference.  
+
+We can load the data and examine its structure
+
+```{r load-movies-data}
+movies <- read_csv(here::here("data", "movies.csv"))
+glimpse(movies)
+```
+
+
+```{r movie comparison, fig.height=6, fig.width=10}
+
+
+ratings_per_director_formula_ci <- movies %>%
+  filter(director %in% (c("Steven Spielberg", "Tim Burton"))) %>% 
+  group_by(director) %>% 
+  summarise(mean_rating = mean(rating),
+            median_rating = median(rating),
+            sd_rating = sd(rating),
+            count = n(),
+            # get t-critical value with (n-1) degrees of freedom
+            t_critical = qt(0.975, count-1),
+            se_rating = sd_rating/sqrt(count),
+            margin_of_error = t_critical * se_rating,
+            rating_low = mean_rating - margin_of_error,
+            rating_high = mean_rating + margin_of_error) %>% 
+  arrange(desc(mean_rating))
+
+ratings_per_director_formula_ci
+
+
+# Create a plot 
+ggplot(data=ratings_per_director_formula_ci, aes(x=mean_rating, y=reorder(director, mean_rating))) + 
+  
+  geom_rect(aes(xmin = 7.27,
+            xmax = 7.33,
+            ymin = -Inf, ymax = Inf),fill = "gainsboro", alpha = .4) +
+
+  
+  geom_point(aes(colour=director), size=5, show.legend=FALSE) + 
+  
+  geom_errorbar(width=.1, aes(xmin=rating_low, xmax=rating_high, colour= director), size=2,   
+                show.legend=FALSE) +
+  
+  scale_color_manual(values = c("coral", "cyan3")) +
+  
+  annotate(geom="text", x=c(7.27,  7.87, 6.53,  7.33), 
+           y=c(2.1, 2.1, 1.1, 1.1), label=c(7.27, 7.87, 6.53, 7.33),
+              color="black", size=6) +
+  
+   annotate(geom="text", x=c(7.57, 6.93), 
+           y=c( 2.1, 1.1), label=c( 7.57, 6.93),
+              color="black", size=8) +
+  
+  theme_minimal() + 
+  
+  theme(panel.border = element_rect(color = "black",
+                                    fill = NA,
+                                    size = 1))+
+  
+  labs(
+    title = "Do Spielberg and Burton have the same mean IMBD ratings",
+    subtitle = "95% confidence interval overlap",
+    x = "Mean IMBD rating",
+    y = "Director", 
+    cex=0.1)
+
+```
+
+Now we conduct the mentioned t-tests: 
+```{r, t_test_using_R_movies, fig.height=4, fid.width=6}
+
+movies_subset <- movies %>%   
+  filter(director %in% (c("Steven Spielberg", "Tim Burton")))
+
+#t-test 
+t.test(rating ~ director, data=movies_subset)
+
+set.seed(1)
+#t-test simulation 
+obs_diff_ratings <- movies_subset %>%
+  specify(rating ~ director) %>%
+  calculate(stat = "diff in means", order = c("Steven Spielberg", "Tim Burton"))
+
+null_dist <- movies_subset %>%
+  # specify variables
+  specify(rating ~ director) %>%
+  
+  # assume independence, i.e, there is no difference
+  hypothesize(null = "independence") %>%
+  
+  # generate 1000 reps, of type "permute"
+  generate(reps = 1000, type = "permute") %>%
+  
+  # calculate statistic of difference, namely "diff in means"
+  calculate(stat = "diff in means", order = c("Steven Spielberg", "Tim Burton"))
+
+null_dist %>% visualize() +
+  shade_p_value(obs_stat = obs_diff_ratings, direction = "two-sided")
+
+null_dist %>%
+  get_p_value(obs_stat = obs_diff_ratings, direction = "two_sided")
+```
+
+
+# Omega Group plc- Pay Discrimination
+
+At the last board meeting of Omega Group Plc., the headquarters of a large multinational company, the issue was raised that women were being discriminated in the company, in the sense that the salaries were not the same for male and female executives. A quick analysis of a sample of 50 employees (of which 24 men and 26 women) revealed that the average salary for men was about 8,700 higher than for women. This seemed like a considerable difference, so it was decided that a further analysis of the company salaries was warranted. 
+
+The objective is to find out whether there is indeed a significant difference between the salaries of men and women, and whether the difference is due to discrimination or whether it is based on another, possibly valid, determining factor. 
+
+## Loading the data
+
+```{r load_omega_data}
+omega <- read_csv(here::here("data", "omega.csv"))
+glimpse(omega) # examine the data frame
+```
+
+## Relationship Salary - Gender ?
+
+The data frame `omega`  contains the salaries for the sample of 50 executives in the company. We will test for a significant difference between the salaries of the male and female executives?
+
+We can perform different types of analyses, and check whether they all lead to the same conclusion 
+
+.	Confidence intervals
+.	Hypothesis testing
+.	Correlation analysis
+.	Regression
+
+We calculate summary statistics on salary by gender. Also, we create and print a dataframe where, for each gender, we show the mean, SD, sample size, the t-critical, the SE, the margin of error, and the low/high endpoints of a 95% confidence interval.
+
+```{r, confint_single_valiables}
+
+# Summary Statistics of salary by gender
+mosaic::favstats (salary ~ gender, data=omega)
+
+# Data frame with two rows (male-female) and having as columns gender, mean, SD, sample size, 
+# the t-critical value, the standard error, the margin of error, 
+# and the low/high endpoints of a 95% confidence interval
+
+#Create dataframe 
+salary_gender <- omega %>% 
+  select(gender, salary) %>% 
+  group_by(gender) %>% 
+  summarise(mean=mean(salary), 
+            sd=sd(salary), 
+            n=n(), 
+            t_critical=qt(0.975, n - 1 ),
+            se= sd/sqrt(n), 
+            margin_of_error = se*t_critical, 
+            low_ci=mean-margin_of_error,
+            high_ci= mean+margin_of_error)
+
+#Print data frame
+salary_gender
+
+```
+
+
+*Conclusion:* Looking at the created Confidence Intervals, we can see that they do not overlap. Hence we can conclude that males indeed appear to get a significantly higher salary when compared to women. 
+
+We can also run a hypothesis testing, assuming as a null hypothesis that the mean difference in salaries is zero, or that, on average, men and women make the same amount of money. 
+
+```{r, hypothesis_testing, fig.width=6, fig.height=4}
+# hypothesis testing using t.test() 
+t.test(salary~gender, data=omega)
+
+# hypothesis testing using infer package
+set.seed(1)
+
+salary_in_null_world <- omega %>% 
+  
+  #Specify varaibles of interest 
+  specify(formula=salary~gender) %>% 
+  
+  #Hypothesize a null of no difference 
+  hypothesize(null="independence") %>% 
+  
+  #Generate simulated samples 
+  generate(reps = 1000, type="permute") %>% 
+  
+  #Find mean difference of each sample 
+  calculate(stat="diff in means", 
+            order=c("female", "male"))
+
+  #Calculate diff in means
+  obs_diff_mean <- omega %>% 
+    specify(formula=salary~gender) %>% 
+    calculate(stat="diff in means", order=c("female", "male"))
+  obs_diff_mean
+  
+  #Calculate CI
+  percentile_ci <- salary_in_null_world %>% 
+    get_confidence_interval(level = 0.95, type = "percentile")
+  percentile_ci
+  
+  #Visualize 
+  visualize(salary_in_null_world, bins=15) +
+    shade_p_value(obs_stat=obs_diff_mean, direction="both") +
+    theme_minimal()
+  
+  #Get p-value
+  salary_in_null_world %>%
+    get_p_value(obs_stat=obs_diff_mean, direction="both")
+
+```
+
+
+*Conclusion:* Both methods of hypothesis testing come to the conclusion that there is a significant difference between the salary of female and male executives. On the one hand side, this can be seen from the small p-value. As the p-value in both cases is smaller than the alpha=0.5 we can reject the null hypothesis (H0: there is no difference). We can also look at the confidence intervals again. Given that the confidence intervals do not contain 0, we can again conclude that there is indeed a significant difference between salary for males and females. 
+
+## Relationship Experience - Gender?
+
+At the board meeting, someone raised the issue that there was indeed a substantial difference between male and female salaries, but that this was attributable to other reasons such as differences in experience. A questionnaire send out to the 50 executives in the sample reveals that the average experience of the men is approximately 21 years, whereas the women only have about 7 years experience on average (see table below).
+
+```{r, experience_stats}
+# Summary Statistics of salary by gender
+favstats (experience ~ gender, data=omega)
+
+```
+
+
+*Conclusion:* Looking at the confidence intervals and p-values we can concluded that there is a difference between experience between females and males. However, we have not yet tested the impact of experience on salary, so we cannot yet say how it affects salary or potential discrimination. However, experience appears to be an different variables between females and males, so further analysis would be appropriate. 
+
+```{r experience and gender, fig.height=4, fid.width=6 }
+
+# Method 1 
+#Create dataframe 
+experience_gender <- omega %>% 
+  select(gender, experience) %>% 
+  group_by(gender) %>% 
+  summarise(mean=mean(experience), 
+            sd=sd(experience), 
+            n=n(), 
+            t_critical=qt(0.975, n - 1 ),
+            se= sd/sqrt(n), 
+            margin_of_error = se*t_critical, 
+            low_ci=mean-margin_of_error,
+            high_ci= mean+margin_of_error)
+
+#Print data frame
+experience_gender
+
+#Method 2 
+# hypothesis testing using t.test() 
+t.test(experience~gender, data=omega)
+
+#Method 3
+# hypothesis testing using infer package
+set.seed(1)
+
+experience_in_null_world <- omega %>% 
+  
+  #Specify varaibles of interest 
+  specify(formula=experience~gender) %>% 
+  
+  #Hypothesize a null of no difference 
+  hypothesize(null="independence") %>% 
+  
+  #Generate simulated samples 
+  generate(reps = 1000, type="permute") %>% 
+  
+  #Find mean difference of each sample 
+  calculate(stat="diff in means", 
+            order=c("female", "male"))
+
+  #Calculate diff in means
+  obs_diff_mean <- omega %>% 
+    specify(formula=experience~gender) %>% 
+    calculate(stat="diff in means", order=c("female", "male"))
+  obs_diff_mean
+  
+  #Calculate CI
+  percentile_ci <- experience_in_null_world %>% 
+    get_confidence_interval(level = 0.95, type = "percentile")
+  percentile_ci
+  
+  #Visualize 
+  visualize(experience_in_null_world, bins=15) +
+    shade_p_value(obs_stat=obs_diff_mean, direction="both") +
+    theme_minimal()
+  
+  #Get p-value
+  experience_in_null_world %>%
+    get_p_value(obs_stat=obs_diff_mean, direction="both")
+
+```
+ 
+## Relationship Salary - Experience ?
+
+Someone at the meeting argues that clearly, a more thorough analysis of the relationship between salary and experience is required before any conclusion can be drawn about whether there is any gender-based salary discrimination in the company.
+
+We analyse the relationship between salary and experience. Draw a scatterplot to visually inspect the data
+
+*Conclusion:* There does appear to be a positive relationship between experience and salary, hence we can assume that the salary on average increases with more experience. 
+
+```{r, salary_exp_scatter, fig.width=6, fid.height=4}
+
+ggplot(data=omega, aes(x=salary, y=experience)) +
+  geom_point()  +
+  theme_minimal() + 
+  geom_smooth(method=lm, se=FALSE)+ 
+   labs(
+    title = "Scatterplot of salary vs experience",
+    subtitle = "There appears to be a positive relationship ",
+    x = "Salary",
+    y = "Years of experience", 
+    cex=0.1)
+
+```
+
+
+## Check correlations between the data
+We can use `GGally:ggpairs()` to create a scatterplot and correlation matrix. Essentially, we change the order our variables will appear in and have the dependent variable (Y), salary, as last in our list. We then pipe the dataframe to `ggpairs()` with `aes` arguments to colour by `gender` and make ths plots somewhat transparent (`alpha  = 0.3`).
+
+```{r, ggpairs}
+omega %>% 
+  select(gender, experience, salary) %>% #order variables they will appear in ggpairs()
+  ggpairs(aes(colour=gender, alpha = 0.3))+
+  theme_bw()
+```
+
+
+*Conclusion:* There does appear to be a positive relationship between experience and salary, hence we can assume that the salary on average increases with more experience. Given that males have significantly more experience that females, it seems plausible that the difference in experience, rather than discrimination, is the reason between the average difference in salary between males and demales. 
+
+
+# Challenge 1: Brexit plot
+
+Using  data manipulation and visualisation skills, we use the Brexit results dataframe and produce a plot. Use the correct colour for each party; google "UK Political Party Web Colours" and find the appropriate hex code for colours, not the default colours that R gives.
+
+
+```{r brexit graph, fig.width=10, fig.height=6}
+# Load data
+brexit <- read_csv(here::here("data", "brexit_results.csv"))
+
+# Inspect data
+glimpse(brexit)
+skim(brexit)
+
+# Change to long format
+brexit_long <- brexit %>%  
+  pivot_longer(cols=c('con_2015', 'lab_2015', 'ld_2015', 'ukip_2015'), names_to= "Party", 
+               values_to="Party_share") 
+  
+# Plot graphs group/colour based on party   
+ggplot(data=brexit_long, aes(x=Party_share, y=leave_share, group=Party, colour=Party)) +
+
+  # Set colour
+  scale_color_manual(values = c("#0087dc", "#d50000", "#FDBB30", "#EFE600"), 
+                     breaks = c('con_2015', 'lab_2015', 'ld_2015', 'ukip_2015'),
+                     labels = c("Conservative", "Labour", "Lib Dems", "UKIP"))+
+ 
+  # Set transparency, smooth line, themes, and x/y axis 
+  geom_point(alpha=0.4) +
+  geom_smooth(method=lm)+
+  theme_minimal() + 
+  ylim(c(20,100))+
+  xlim(c(0,90))+
+  scale_x_continuous(breaks=c(0,20,40,60,80))+
+  
+  #Adjust legend and build border 
+  theme(legend.position="bottom", 
+        legend.title = element_blank(),
+        panel.border = element_rect(color = "black",
+                                    fill = NA,
+                                    size = 1))+
+  # Change labeling of graph
+  labs(
+    title = "How political affiliation translated to Brexit Voting",
+    x = "Party % in the UK 2015 general election",
+    y = "Leave % in the 2016 Brexit referendum", 
+    cex=0.1)
+  
+```
+
+# Challenge 2: CDC COVID-19 Public Use Data
+
+The [CDC Covid-19 Case Surveillance Data](https://data.cdc.gov/Case-Surveillance/COVID-19-Case-Surveillance-Public-Use-Data/vbim-akqf) is a case surveillance public use dataset with 12 elements for all COVID-19 cases shared with CDC and includes demographics, any exposure history, disease severity indicators and outcomes, presence of any underlying medical conditions and risk behaviors. See the variables from 
+
+
+```{r covid_data, echo=FALSE, out.width="100%"}
+knitr::include_graphics(here::here("images", "cdc_data.png"), error = FALSE)
+```
+
+
+There are well over 28 million entries of individual, and we will work with SQLlite database, rather than a CSV file. We will produce two graphs that show death % rate:
+
+1. by age group, sex, and whether the patient had co-morbidities or not
+1. by age group, sex, and whether the patient was admited to Intensive Care Unit (ICU) or not.
+
+```{r covid challenge}
+
+library(tidyverse)
+library(RSQLite)
+library(dbplyr)
+library(DBI)
+library(janitor)
+
+# more details and examples on connecting to an SQL database can be found at 
+# https://mam2022.netlify.app/reference/reference_sql/
+
+# set up a connection to sqlite database. 
+# make sure the database file is in your working directory-- 
+# put it at the root of am01
+
+cdc_db <- DBI::dbConnect(
+  drv = RSQLite::SQLite(),
+  dbname = "cdc_data.db"
+)
+
+# browse the tables in the database using DBI::dbListTables()
+DBI::dbListTables(cdc_db)
+
+# We can easily set these tables up as database objects using dplyr
+cdc_data <- dplyr::tbl(cdc_db, "cdc")
+
+cdc_data
+
+# ************************
+# You need to calculate Covid death % by age group, sex 
+# and presence of co-morbidities (query1) and Covid death % 
+# by age group, sex and ICU admission (query2) 
+
+
+# rather than loading the entire file in memory, you will use dplyr+SQL,
+# to generate a smaller dataset that you will use for your calculations and
+# thn visualisations
+
+```
+
+
+```{r plot the death rate by medcond_yn, age and sex, fig.width= 14}
+query1 <- cdc_data %>%
+  
+  #Filter relevant data 
+  filter(sex %in% c("Male","Female"),
+         age_group %in% c("0 - 9 Years","10 - 19 Years","20 - 29 Years",
+                          "30 - 39 Years","40 - 49 Years","50 - 59 Years",
+                          "60 - 69 Years","70 - 79 Years","80+ Years"),
+         death_yn %in% c("Yes","No"),
+         medcond_yn %in% c("Yes","No")) %>% 
+  
+  group_by(sex,age_group,medcond_yn,death_yn) %>% 
+  summarize(count=n())
+
+# Generate actual SQL commands
+dbplyr::sql_render(query1)
+
+# execute query and retrieve results in a tibble (dataframe). 
+query1_tibble <- query1 %>% 
+  collect()
+
+#create the dataframe for visualization
+df <- query1_tibble %>% 
+  pivot_wider(names_from = death_yn, values_from = count) %>% 
+  
+  mutate(death_rate = 100 * Yes / (Yes + No),
+         medcond_yn = case_when(medcond_yn == "No" ~ "Without comorbidities",
+                                medcond_yn == "Yes" ~ "With comorbidities"))  
+
+#create the graph
+df %>% ggplot(aes(death_rate,age_group)) +
+  
+  geom_col(fill="#4682B4") +
+  
+  facet_grid(medcond_yn ~ sex) +
+  
+  labs(title = "Covid death % by age group, sex and presence of co-morbidities",
+       x = "", y = "", caption = "Source: CDC") +
+  
+  scale_x_continuous(breaks = c(0,10,20,30,40),
+                     labels = c("0.0%","10.0%","20.0%","30.0%","40.0%")) +
+  
+  geom_text(aes(label = signif(round(death_rate,1))), nudge_x = 1.2) +
+  theme_bw() +
+  NULL
+
+```
+```{r plot the death rate by icu_yn, age and sex, fig.width= 14}
+
+query2 <- cdc_data %>%
+  
+  #Filter relevant data 
+  filter(sex %in% c("Male","Female"),
+         age_group %in% c("0 - 9 Years","10 - 19 Years","20 - 29 Years",
+                          "30 - 39 Years","40 - 49 Years","50 - 59 Years",
+                          "60 - 69 Years","70 - 79 Years","80+ Years"),
+         death_yn %in% c("Yes","No"),
+         icu_yn %in% c("Yes","No")) %>% 
+  
+  group_by(sex,age_group,icu_yn,death_yn) %>% 
+  summarize(count=n())
+
+# Generate actual SQL commands
+dbplyr::sql_render(query2)
+
+# execute query and retrieve results in a tibble (dataframe). 
+query2_tibble <- query2 %>% 
+  collect()
+
+#create the dataframe for visualization
+df2 <- query2_tibble %>% 
+  pivot_wider(names_from = death_yn,values_from = count) %>% 
+  mutate(death_rate = 100 * Yes / (Yes + No),
+         icu_yn = case_when(icu_yn == "No" ~ "No ICU Admission",
+                            icu_yn == "Yes" ~ "ICU Admission"))  
+
+#create the graph
+df2 %>% ggplot(aes(death_rate,age_group)) +
+  geom_col(fill="#FFA07A") +
+  facet_grid(icu_yn ~ sex) +
+  labs(title = "Covid death % by age group, sex and ICU Admission",
+       x = "", y = "", caption = "Source: CDC") +
+  scale_x_continuous(breaks = c(0,20,40,60,80),
+                     labels = c("0%","20%","40%","60%","80%")) +
+  geom_text(aes(label = signif(round(death_rate,1))), nudge_x = 2) +
+  theme_bw() +
+  NULL
+
+```
+
+
+
+# Challenge 3: GDP components over time and among countries
+
+At the risk of oversimplifying things, the main components of gross domestic product, GDP are personal consumption (C), business investment (I), government spending (G) and net exports (exports - imports). 
+
+The GDP data we will look at is from the [United Nations' National Accounts Main Aggregates Database](https://unstats.un.org/unsd/snaama/Downloads), which contains estimates of total GDP and its components for all countries from 1970 to today. We will look at how GDP and its components have changed over time, and compare different countries and how much each component contributes to that country's GDP. The file we will work with is [GDP and its breakdown at constant 2010 prices in US Dollars](http://unstats.un.org/unsd/amaapi/api/file/6).
+
+
+```{r read_GDP_data}
+
+UN_GDP_data  <-  read_excel(here::here("data", "Download-GDPconstant-USD-countries.xls"), # Excel filename
+                sheet="Download-GDPconstant-USD-countr", # Sheet name
+                skip=2) # Number of rows to skip
+
+```
+
+The first thing we need to do is to tidy the data, as it is in wide format and we must make it into long, tidy format. We express all figures in billions (divide values by `1e9`, or $10^9$), and rename the indicators into something shorter.
+
+
+```{r reshape_GDP_data}
+
+#Tidy data
+tidy_GDP_data <-UN_GDP_data %>% pivot_longer(cols = 4:51, names_to = "year", values_to = "amount") %>%
+  
+  #Change names 
+  mutate(IndicatorName=recode(IndicatorName, 
+                         `Final consumption expenditure`="consumption_exp",
+                         `Household consumption expenditure (including Non-profit institutions serving households)`="Household expenditure", 
+                         `General government final consumption expenditure`="Government expenditure", 
+                         `Gross fixed capital formation (including Acquisitions less disposals of valuables)`="gross_fixed_capital", 
+                         `Exports of goods and services`="Exports", 
+                         `Imports of goods and services`="Imports", 
+                         `Gross Domestic Product (GDP)`="GDP", 
+                         `Other Activities (ISIC J-P)`="other",
+                         `Agriculture, hunting, forestry, fishing (ISIC A-B)`="agriculture", 
+                         `Mining, Manufacturing, Utilities (ISIC C-E)`="mining", 
+                         `Wholesale, retail trade, restaurants and hotels (ISIC G-H)`="wholesale", 
+                         `Transport, storage and communication (ISIC I)`="transport"), 
+         
+                         # Change amount in bn
+                          amount=amount / 1e9) %>% 
+  clean_names()
+
+glimpse(tidy_GDP_data)
+
+
+# Let us compare GDP components for these 3 countries
+country_list <- c("United States","India", "Germany")
+```
+
+First we create a plot.
+
+```{r GDP components plot, out.width="100%", fig.width=12, fig.height=6}
+#filter the required the indicators
+indicator_list <- c("Gross capital formation", "Exports", "Imports", "Government expenditure", "Household expenditure")
+
+#create and filter a temp table
+components_table <- tidy_GDP_data %>% 
+  filter((country %in% country_list), (indicator_name %in% indicator_list)) 
+
+#reorder the level for the legend
+components_table$indicator_name <- factor(components_table$indicator_name, levels = c("Gross capital formation", "Exports", "Imports", "Government expenditure", "Household expenditure"))
+
+#create the graph
+components_table %>% ggplot(aes(year, amount, group = indicator_name, color = indicator_name)) + 
+  geom_line() + 
+  scale_x_discrete(breaks=seq(1970,2010,10)) +
+  facet_wrap(~country) +
+  labs(title = "GDP components over time", 
+       subtitle = "In constant 2010 USD", 
+       x = "", 
+       y = "Billion US$", 
+       color = "Components of GDP") +
+  
+  theme_bw() +
+  
+  theme(axis.text.x= element_text(size=7), axis.text.y= element_text(size=7)) +
+  
+  NULL
+```
+
+Secondly, recall that GDP is the sum of Household Expenditure (Consumption *C*), Gross Capital Formation (business investment *I*), Government Expenditure (G) and Net Exports (exports - imports). Even though there is an indicator `Gross Domestic Product (GDP)` in the dataframe, we will calculate it given its components discussed above.
+
+We determine data frame % difference between what you calculated as GDP and the GDP figure included in the dataframe.
+
+```{r calculate GDP, fig.width=6, fig.height=4}
+indicator_list2 <- c("Gross capital formation", "Exports", "Imports", "Government expenditure", "Household expenditure", "GDP")
+
+gdp_table <- tidy_GDP_data %>% 
+  
+  #Filter relevant data
+  filter(country %in% country_list, indicator_name %in% indicator_list2) %>% 
+  
+  #Transform to wider format
+  pivot_wider(names_from = indicator_name, values_from = amount) %>% 
+  
+  #Calculate GDP diff
+  mutate(Net_exports = Exports - Imports, 
+         Calculated_gdp = `Gross capital formation` + `Government expenditure` + `Household expenditure` + Net_exports, 
+         gdp_diff = 100 * ((Calculated_gdp - GDP) / GDP))
+
+gdp_table %>%  
+  group_by(country) %>% 
+  summarise(mean_gdp_diff=mean(gdp_diff),
+            median_gdp_diff=median(gdp_diff),
+            sd_gdp_diff=sd(gdp_diff),
+            max_gdp_diff=max(gdp_diff),
+            min_gdp_diff=min(gdp_diff))
+
+#create the graph
+gdp_table %>% ggplot(aes(year, gdp_diff, group = 1)) + 
+  geom_line() + 
+  scale_x_discrete(breaks=seq(1970,2010,10)) +
+  facet_wrap(~country) +
+  
+  #Create horizontal line 
+  geom_hline(yintercept=0, 
+             linetype="solid",
+             color = "red", 
+             size=0.5) + 
+  
+  #Label the graph
+  labs(title = "% Difference in GDP over time",
+       x = "Year", 
+       y = "% (calculated over provided GDP)") +
+  
+  theme_bw() +
+  theme(axis.text.x= element_text(size=7), 
+        axis.text.y= element_text(size=7)) +
+  
+  NULL
+```
+
+
+```{r gdp2, echo=FALSE, out.width="100%"}
+knitr::include_graphics(here::here("images", "gdp2.png"), error = FALSE)
+```
+
+
+*Interpretation:* The graphs show the proportion of the different components that make up GDP by country. For example we can see that India has the highest household expenditure proportion and also comparatively high gross capital formation. For Germany and US, the government expenditure and gross capital formation proportion are closer together. The Net Exports for all countries change along the 0% proportion. 
+
+
+We change `country_list <- c("United States","India", "Germany")` to include other countries.
+
+```{r produce our own graph, out.width="100%", fig.width=12, fig.hight=6}
+
+# Choose these 3 countries
+country_list2 <- c("United Kingdom","China", "Japan")
+
+#filter the required the indicators
+indicator_list <- c("Gross capital formation", "Exports", "Imports", "Government expenditure", "Household expenditure")
+
+#create and filter a temp table
+components_table2 <- tidy_GDP_data %>% 
+  filter(country %in% country_list2, indicator_name %in% indicator_list) 
+
+#reorder the level for the legend
+components_table2$indicator_name <- factor(components_table2$indicator_name, levels = c("Gross capital formation", "Exports", "Government expenditure", "Household expenditure", "Imports"))
+
+#create the graph
+components_table2 %>% ggplot(aes(year, amount, group = indicator_name, color = indicator_name)) + 
+  
+  geom_line() + 
+  
+  scale_x_discrete(breaks=seq(1970,2010,10)) +
+  
+  facet_wrap(~country) +
+  
+  labs(title = "GDP components over time",
+       subtitle = "In constant 2010 USD", 
+       x = "", y = "Billion US$", 
+       color = "Components of GDP") +
+  
+  theme_bw() +
+  theme(axis.text.x= element_text(size=7), axis.text.y= element_text(size=7)) +
+  NULL
+
+```
+
