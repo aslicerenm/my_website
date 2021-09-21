@@ -85,9 +85,9 @@ params:
         title: About me
         url: blogs/about-me
       - image: pic02.jpg
-        subtitle: Youth Risk Behavior, IMDB Ratings, Omega Group Pay Discrimination
-        title: Example R project
-        url: blogs/example-project
+        subtitle: Youth Risk Behavior
+        title: R project 1
+        url: blogs/r-project-1
       - image: pic03.jpg
 #        subtitle: Lorem Etiam Nullam
         title: Education
@@ -96,14 +96,14 @@ params:
 #        subtitle: Nisl Sed Aliquam
         title: Professional experience
         url: blogs/professional-experience
-#      - image: pic05.jpg
-#        subtitle: Ipsum Dolor Sit Amet
-#        title: Consequat
-#        url: blogs/ipsum
-#      - image: pic06.jpg
-#        subtitle: Feugiat Amet Tempus
-#        title: Etiam
-#        url: blogs/ipsum
+      - image: pic05.jpg
+        subtitle: IMDB Ratings
+        title: R project 2
+        url: blogs/r-project-2
+      - image: pic06.jpg
+        subtitle: Omega Group Pay Discrimination
+        title: R project 3
+        url: blogs/r-project-3
 #  two:
 #    buttonText: Get Started
 #    enable: yes

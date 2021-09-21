@@ -1,0 +1,152 @@
+---
+categories:
+- ""
+- ""
+date: "2017-10-31T22:26:09-05:00"
+description: ""
+draft: false
+image: pic09.jpg
+keywords: ""
+slug: example-project
+title: Example R project
+---
+
+```{r, setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(GGally)
+library(readxl)
+library(here)
+library(skimr)
+library(janitor)
+library(broom)
+library(tidyquant)
+library(infer)
+library(openintro)
+```
+
+# IMDB ratings: Differences between directors
+
+Recall the IMBD ratings data. We will explore whether the mean IMDB rating for Steven Spielberg and Tim Burton are the same or not. First we create a graph and then we run a hypothesis test with the `t.test` and `infer` package. The null hypothesis is that there is no difference in rating, while the alternative hypothesis is that there is a difference.  
+
+We can load the data and examine its structure
+
+```{r load-movies-data}
+movies <- read_csv(here::here("data", "movies.csv"))
+glimpse(movies)
+```
+
+
+```{r movie comparison, fig.height=6, fig.width=10}
+
+
+ratings_per_director_formula_ci <- movies %>%
+  filter(director %in% (c("Steven Spielberg", "Tim Burton"))) %>% 
+  group_by(director) %>% 
+  summarise(mean_rating = mean(rating),
+            median_rating = median(rating),
+            sd_rating = sd(rating),
+            count = n(),
+            # get t-critical value with (n-1) degrees of freedom
+            t_critical = qt(0.975, count-1),
+            se_rating = sd_rating/sqrt(count),
+            margin_of_error = t_critical * se_rating,
+            rating_low = mean_rating - margin_of_error,
+            rating_high = mean_rating + margin_of_error) %>% 
+  arrange(desc(mean_rating))
+
+ratings_per_director_formula_ci
+
+
+# Create a plot 
+ggplot(data=ratings_per_director_formula_ci, aes(x=mean_rating, y=reorder(director, mean_rating))) + 
+  
+  geom_rect(aes(xmin = 7.27,
+            xmax = 7.33,
+            ymin = -Inf, ymax = Inf),fill = "gainsboro", alpha = .4) +
+
+  
+  geom_point(aes(colour=director), size=5, show.legend=FALSE) + 
+  
+  geom_errorbar(width=.1, aes(xmin=rating_low, xmax=rating_high, colour= director), size=2,   
+                show.legend=FALSE) +
+  
+  scale_color_manual(values = c("coral", "cyan3")) +
+  
+  annotate(geom="text", x=c(7.27,  7.87, 6.53,  7.33), 
+           y=c(2.1, 2.1, 1.1, 1.1), label=c(7.27, 7.87, 6.53, 7.33),
+              color="black", size=6) +
+  
+   annotate(geom="text", x=c(7.57, 6.93), 
+           y=c( 2.1, 1.1), label=c( 7.57, 6.93),
+              color="black", size=8) +
+  
+  theme_minimal() + 
+  
+  theme(panel.border = element_rect(color = "black",
+                                    fill = NA,
+                                    size = 1))+
+  
+  labs(
+    title = "Do Spielberg and Burton have the same mean IMBD ratings",
+    subtitle = "95% confidence interval overlap",
+    x = "Mean IMBD rating",
+    y = "Director", 
+    cex=0.1)
+
+```
+
+Now we conduct the mentioned t-tests: 
+```{r, t_test_using_R_movies, fig.height=4, fid.width=6}
+
+movies_subset <- movies %>%   
+  filter(director %in% (c("Steven Spielberg", "Tim Burton")))
+
+#t-test 
+t.test(rating ~ director, data=movies_subset)
+
+set.seed(1)
+#t-test simulation 
+obs_diff_ratings <- movies_subset %>%
+  specify(rating ~ director) %>%
+  calculate(stat = "diff in means", order = c("Steven Spielberg", "Tim Burton"))
+
+null_dist <- movies_subset %>%
+  # specify variables
+  specify(rating ~ director) %>%
+  
+  # assume independence, i.e, there is no difference
+  hypothesize(null = "independence") %>%
+  
+  # generate 1000 reps, of type "permute"
+  generate(reps = 1000, type = "permute") %>%
+  
+  # calculate statistic of difference, namely "diff in means"
+  calculate(stat = "diff in means", order = c("Steven Spielberg", "Tim Burton"))
+
+null_dist %>% visualize() +
+  shade_p_value(obs_stat = obs_diff_ratings, direction = "two-sided")
+
+null_dist %>%
+  get_p_value(obs_stat = obs_diff_ratings, direction = "two_sided")
+```
+
+
